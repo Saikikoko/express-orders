@@ -1,0 +1,135 @@
+<% include header.ejs %>
+<body>
+    <% include nav.ejs %>
+    <div class="layui-main">
+        <h1><%- data.title %></h1>
+
+        <div class="layui-text layui-row">
+            <div class="layui-col-md1">
+                发布人：<%- data.author.username %>
+            </div>
+            <div>
+                发布时间：<%- new Date(data.created).toLocaleString() %>
+            </div>
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>任务详情</legend>
+            </fieldset>
+
+            <div>
+                <%- data.content %>
+            </div>
+
+            <div>
+                已接取人数：<%- data.receiver.length %>
+                最高接取人数：<%- data.num %>
+                任务限时：<%- new Date(data.date).toLocaleString() %>
+                任务难度：
+                <div id="dif"></div>
+            </div>
+
+            <div>
+                <% if(data.can && flag === -1){ %>
+
+                    <button id= "btn-reveive" class="layui-btn layui-btn-normal">立即接取</button>
+                <% }else{ %>
+                    <button class="layui-btn layui-btn-normal layui-btn-disabled">不可接取</button>
+                <% } %>
+            </div>
+
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>接取人</legend>
+            </fieldset>
+
+            <div>
+                <% for(let i = 0;i < data.receiver.length;i++){ %>
+                    <%= `${i + 1}.${data.receiver[i].user.username}` %>
+                <% } %>
+            </div>
+
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>任务详情</legend>
+            </fieldset>
+
+            <% for(let i = 0;i < data.receiver.length;i++){ %>
+                <div class="layui-card">
+                    <div class="layui-card-header">
+                        用户名<%- data.receiver[i].user.username%>
+                    </div>
+                    <% if(data.receiver[i].isFin){%>
+                    <div class="layui-card-body">
+                        <%- data.receiver[i].finMsg%>
+                    </div>
+                    <% }else{%>
+                        <%if(user._id == data.receiver[i].user._id){%>
+                        <form class="layui-form" action="">
+                            <input name="id" type="text" value="<%- data.receiver[i].user._id%>" hidden>
+                            <input name="index" type="text" value="<%- i%>" hidden>
+                            <textarea id="demo<%-i%>" style="display: none;"></textarea>
+                            <div class="layui-form-item" style="padding:10px 0">
+                                <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+                            </div>
+                        </form>
+
+                        <%}%>
+                    <% }%>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</body>
+
+<script>
+    layui.use(['rate','layer','layedit','form'], function () {
+        const rate = layui.rate;
+        const $ = layui.$;
+        const layer = layui.layer;
+        const layedit = layui.layedit;
+        const form = layui.form;
+        const edit = {};
+
+        <%for(let i=0;i < data.receiver.length;i++){%>
+            edit.index<%- i%> = layedit.build('demo<%-i%>'); //建立编辑器
+        <%}%>
+
+        rate.render({
+            elem: '#dif',
+            value: '<%- data.diff %>',
+            readonly: true
+        })
+
+        $('#btn-reveive').on('click', function () {
+            $.ajax({
+                url: location.pathname,
+                method: 'POST',
+                success(data){
+                    if(data.code === 0){
+                        location.reload();
+                    }else{
+                        layer.msg(data.msg, {icon: 5});
+                    }
+                }
+            })
+        })
+
+        //监听提交
+        form.on('submit(formDemo)', function(data){
+            const da = data.field;
+            da.finMsg = layedit.getContent(edit['index' + data.field.index])
+            // console.log(da);
+            // layer.msg(JSON.stringify(data.field));
+            da.path = location.pathname;
+            console.log(da);
+            $.ajax({
+                url: '/task/xq/acc',
+                method: 'POST',
+                data: da,
+                success(data){
+                    if(data.code === 0){
+                        location.reload()
+                    }
+                }
+            })
+            return false;
+        });
+    })
+</script>

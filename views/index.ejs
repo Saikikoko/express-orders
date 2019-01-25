@@ -1,0 +1,33 @@
+<% include header.ejs %>
+<body>
+    <% include nav.ejs%>
+    <div class="layui-main" style="margin-top:20px">
+        <!-- 内容主体区域 -->
+        <div class="layui-main">
+            <div class="btn-container">
+                <button class="layui-btn" data-task="all">全部任务</button>
+                <button class="layui-btn" data-task="can">可以接取</button>
+                <button class="layui-btn" data-task="nocan">不可接取</button>
+                <% if(login){ %>
+                <div style="float: right;">
+                    <span >我的任务：</span>
+                    <% if(user.level >= 10){ %>
+                    <button class="layui-btn" data-task="my">我发布的</button>
+                    <% }%>
+                    <button class="layui-btn" data-task="ing">正在进行</button>
+                    <button class="layui-btn" data-task="finish">已经完成</button>
+                </div>
+                <% }%>
+            </div>
+        </div>
+
+
+        <table class="layui-hide" id="test" lay-filter="table"></table>
+
+    </div>
+    <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-xs" lay-event="look">任务详情</a>
+    </script>
+    <script src="/js/index.js"></script>
+
+</body>

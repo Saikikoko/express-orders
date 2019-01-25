@@ -1,0 +1,28 @@
+<div class="layui-bg-cyan">
+    <div class="layui-header layui-main">
+        <ul class="layui-nav layui-bg-cyan">
+            <li class="layui-nav-item layui-this"><a href="/">任务大厅</a></li>
+        </ul>
+        <ul class="layui-nav layui-bg-cyan layui-layout-right ">
+            <% if (login){ %>
+                <li class="layui-nav-item">
+                    <a href="/">
+                        <img src="/avatar/default.jpg" class="layui-nav-img">
+                        <%- user.username%>
+                    </a>
+
+                </li>
+
+                <% if (user.level >= 10) { %>
+                    <li class="layui-nav-item"><a href="/admin/user">后台管理</a></li>
+                <% } %>
+
+                <li class="layui-nav-item"><a href="/logout">退出</a></li>
+            <% } else { %>
+                <li class="layui-nav-item"><a href="/login">登陆</a></li>
+                <li class="layui-nav-item"><a href="/reg">注册</a></li>
+            <% } %>
+        </ul>
+    </div>
+
+</div>
