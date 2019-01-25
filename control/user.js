@@ -7,13 +7,13 @@ const User = db.model('users',UserSchema);
 
 
 //用户注册
-exports.reg = async (req,res)=>{
+exports.reg = (req,res)=>{
     //查找数据库有没有该用户
     const username = req.body.username;
     const password = req.body.password;
     //和数据库的数据作比对
 
-    await new Promise((res,rej) => {
+    new Promise((res,rej) => {
         User.find({username},(err,data) => {
             if(err)return rej(err);
             if(data.length !==0){
@@ -38,23 +38,69 @@ exports.reg = async (req,res)=>{
     .then(data => {
         if(data){
             res.send({
-                code: 1,
+                code: 0,
                 msg: "注册成功"
             })
         }else{
             res.send({
-                code: 2,
+                code: 1,
                 msg: "用户已存在"
             })
         }
     })
     .catch(err => {
         res.send({
-            code: 3,
+            code: 1,
             msg: "服务器错误" + err
         })
     })
 }
+
+exports.login = (req,res)=>{
+    const user = req.body;
+    const username = user.username;
+    const password = user.password;
+
+    new Promise ((res,rej)=>{
+        User.find({username},(err,data)=>{
+            if(err) return rej(err);
+            if(data.length===0) return rej("");
+            if(data[0].password===encrypt(password)){
+                return res(data);
+            }
+            return res("");
+        });
+    })
+    .then(data=>{
+        if(!data){
+            return res.send({
+                code: 1,
+                msg: "密码错误"
+            })
+        }
+
+        req.session.login = true;
+        req.session.user = data[0];
+
+        res.send({
+            code: 0,
+            msg: "登陆成功"
+        })
+
+    }).catch(err=>{
+        if(!err){
+            return res.send({
+                code: 1,
+                msg: "用户名不存在"
+            })
+        }
+       res.send({
+            code: 1,
+            msg: "服务器错误" + err
+        })
+    })
+}
+
 
 
 
